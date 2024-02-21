@@ -24,10 +24,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::prefix('v1')->middleware(["auth:sanctum", 'isAdmin'])->group(function () {
     Route::resource('rent', RentController::class);
+    Route::get('user', [AuthController::class, 'index']);
     Route::resource('transaksi', TransaksiController::class);
     Route::post('logout', [AuthController::class, 'logout']);
-    Route::get('user', [AuthController::class, 'index']);
 });
+
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);

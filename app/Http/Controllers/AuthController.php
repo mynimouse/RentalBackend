@@ -23,12 +23,19 @@ class AuthController extends Controller
                 'description' => 'required|max:255',
                 'phone' => 'required|numeric',
             ]);
+
             if ($validate->fails()) {
                 return response()->json([
                     'msg' => $validate->errors(),
                     'status' => false
                 ]);
             }
+
+            // Tentukan nilai default untuk peran (role)
+            $defaultRole = 'pengguna';
+
+            // Periksa apakah inputan 'role' tersedia dalam request
+            $inputRole = $request->has('role') ? $request->input('role') : $defaultRole;
 
             $user = User::create([
                 'username' => $request->input('username'),
@@ -38,12 +45,14 @@ class AuthController extends Controller
                 'date_birth' => $request->input('date_birth'),
                 'phone' => $request->input('phone'),
                 'description' => $request->input('description'),
+                'role' => $inputRole,
             ]);
 
             return response()->json([
                 'msg' => 'berhasil membuat akun',
                 'data' => $user,
-                'token' => $user->createToken('Api Token')->plainTextToken
+                'token' => $user->createToken('Api Token')->plainTextToken,
+                'default_role' => $defaultRole // Menampilkan nilai default dalam respons JSON
             ]);
         } catch (Throwable $th) {
             return response()->json([
@@ -84,7 +93,7 @@ class AuthController extends Controller
 
     public function index()
     {
-        $user = User::all();
+        $user = User::paginate(10);
         return response()->json($user);
     }
 
